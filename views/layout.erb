@@ -1,9 +1,12 @@
 <!DOCTYPE "html">
-
-<% if session[:message] %>
-  <p><%= session.delete(:message) %></p>
-<% end %>
-
-<%= yield %>
-
+  <title>CMS</title>
+  <link rel="stylesheet" href="/cms.css" type="text/css">
+  
+  <body>
+    <% if session[:message] %>
+      <p><%= session.delete(:message) %></p>
+    <% end %>
+    
+    <%= yield %>
+  </body>
 </html>

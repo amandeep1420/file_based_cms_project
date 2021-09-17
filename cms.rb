@@ -11,21 +11,13 @@ end
 
 before do
   pattern = File.join(data_path, "*")
+  
   @files = Dir.glob(pattern).map do |path|
              File.basename(path)
            end.sort
-
 end
 
 helpers do
-  def data_path
-    if ENV["RACK_ENV"] == "test"
-      File.expand_path("../test/data", __FILE__)
-    else
-      File.expand_path("../data", __FILE__)
-    end
-  end
-  
   def render_markdown(text)
     markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
     markdown.render(text)
@@ -45,9 +37,32 @@ helpers do
   end
 end
 
+def create_document(name, content = "")
+  File.open(File.join(data_path, name), "w") do |file|
+    file.write(content)
+  end
+end
+
+def data_path
+  if ENV["RACK_ENV"] == "test"
+    File.expand_path("../test/data", __FILE__)
+  else
+    File.expand_path("../data", __FILE__)
+  end
+end
+
+def valid_filename?(name)
+  File.extname(name) == ".md" || File.extname(name) == ".txt"
+end
+
 get "/" do
   
   erb :index
+end
+
+get "/new" do
+  
+  erb :new
 end
 
 get "/:filename" do
@@ -56,7 +71,7 @@ get "/:filename" do
   if File.file?(file_path)
     render_document(file_path)
   else
-    session[:error] = "#{params[:filename]} does not exist."
+    session[:message] = "#{params[:filename]} does not exist."
     redirect "/"
   end
 end
@@ -68,6 +83,19 @@ get "/:filename/edit" do
   @content = File.read(file_path)
 
   erb :edit
+end
+
+post "/new" do
+  name = params[:new_file].strip
+  
+  if valid_filename?(name)
+    create_document(name)
+    session[:message] = "#{name} was created."
+    redirect "/"
+  else
+    session[:message] = "Please enter a valid file name."
+    erb :new
+  end
 end
 
 post "/:filename" do

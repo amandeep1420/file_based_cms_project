@@ -1,0 +1,9 @@
+<!DOCTYPE "html">
+
+<% if session[:message] %>
+  <p><%= session.delete(:message) %></p>
+<% end %>
+
+<%= yield %>
+
+</html>

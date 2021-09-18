@@ -1,3 +1,5 @@
-name =  File.extname("test.")
+require 'bcrypt'
 
-puts name
+pass = BCrypt::Password.create('secret')
+
+p pass
